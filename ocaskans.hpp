@@ -7,12 +7,31 @@
 #include <eosiolib/db.h>
 #include <eosiolib/asset.hpp>
 #include<eosiolib/serialize.hpp>
-#include "../erc20currency/erc20currency.hpp"
 #include"tool.hpp"
 
 
 const static uint32_t lable_not_release = 0;
 const static uint32_t lable_released = 1;
+
+
+struct transferfromact {
+    account_name from;
+    account_name to;
+    eosio::asset quantity;
+
+    EOSLIB_SERIALIZE(transferfromact, (from)(to)(quantity))
+};
+
+
+struct transfer
+{
+  account_name from;
+  account_name to;
+  eosio::asset        quantity;
+  std::string       memo;
+
+  EOSLIB_SERIALIZE( transfer, (from)(to)(quantity)(memo) )
+};
 
 
 /**
@@ -104,15 +123,15 @@ public:
     void releaseMortgage( const releasemog& rm );
     void store_answer(const answer &a);
     void store_ask(const actask &c);
-    void send_deferred_transfer_transaction(oct::transfer as);
+    void send_deferred_transfer_transaction(transfer as);
 
     static const uint64_t aksansadmin = N(ocaskans);
-    static const uint64_t tokenContract = N(erctoken);
+    static const uint64_t tokenContract = N(eosdactoken);
     static const uint64_t currentAdmin = N(ocaskans);
     static const uint64_t answerRequestOCT = 10000;
 
 private:
-    void send_deferred_transferfrom_transaction(oct::transferfromact tf);
+    void send_deferred_transferfrom_transaction(transferfromact tf);
 };
 
 

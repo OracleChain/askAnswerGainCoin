@@ -6,7 +6,7 @@
 #include <eosiolib/db.h>
 #include <eosiolib/types.hpp>
 #include <eosiolib/transaction.hpp>
-#include "../erc20currency/erc20currency.hpp"
+#include "../erc20currency/eosdactoken.hpp"
 
 
 #include "tool.hpp"
@@ -18,12 +18,14 @@
  *  call these methods.
  */
 
-void ocaskans::send_deferred_transferfrom_transaction(oct::transferfromact tf){
-    eosio::asset fromBalance = oct::currency(tokenContract).get_balance(tf.from, tf.quantity.symbol.value);
+void ocaskans::send_deferred_transferfrom_transaction(transferfromact tf){
+    eosio::print("transferfromact:", tf.from, "--", tf.to, "--", tf.quantity);
+    eosio::asset fromBalance = eosdactoken(tokenContract).get_balance(tf.from, tf.quantity.symbol.name());
     eosio_assert(fromBalance.amount >= tf.quantity.amount,NOT_ENOUGH_OCT_TO_DO_IT);
 
-    uint64_t allowed = oct::currency(tokenContract).allowanceOf(tf.from, tf.to, tf.quantity.symbol.value);
+    uint64_t allowed = eosdactoken(tokenContract).allowanceOf(tf.from, tf.to, tf.quantity.symbol.name());
     eosio_assert(allowed>= tf.quantity.amount, NOT_ENOUGH_ALLOWED_OCT_TO_DO_IT);
+
 
     using namespace eosio;
     auto trx = eosio::transaction();
@@ -35,14 +37,15 @@ void ocaskans::send_deferred_transferfrom_transaction(oct::transferfromact tf){
     trx.send( 0xffffffffffffffff, currentAdmin);
 }
 
-void ocaskans::send_deferred_transfer_transaction(oct::transfer tf) {
-    eosio::asset fromBalance = oct::currency(tokenContract).get_balance(tf.from, tf.quantity.symbol.value);
+void ocaskans::send_deferred_transfer_transaction(transfer tf) {
+    eosio::print("transfer:", tf.from, tf.to, tf.quantity);
+    eosio::asset fromBalance = eosdactoken(tokenContract).get_balance(tf.from, tf.quantity.symbol.name());
     eosio_assert(fromBalance.amount >= tf.quantity.amount,NOT_ENOUGH_OCT_TO_DO_IT);
 
    using namespace eosio;
    auto trx = eosio::transaction();
 
-   test_action_action<aksansadmin, N(transfer)> transfercurrency;
+   test_action_action<tokenContract, N(transfer)> transfercurrency;
    copy_data((char*)&tf, sizeof(tf), transfercurrency.data);
    trx.actions.emplace_back(vector<permission_level>{{currentAdmin, N(active)}},transfercurrency);
    trx.delay_sec = 2;
@@ -55,10 +58,12 @@ you can modify you self asks, or else will add a new ask
 void ocaskans::store_ask(const actask &askItemPar){
     actask c = askItemPar;
     require_auth(c.from);
+    eosio_assert(c.optionanswerscnt>2 && c.optionanswerscnt<10000, OPTIONS_ANSWERS_COUNT_SHOULE_BIGGER_THAN_ONE);
+
     askIndex askItem(currentAdmin, aksansadmin);
     auto to = askItem.find( c.id );
 
-    oct::transferfromact transAct;
+    transferfromact transAct;
     transAct.from = askItemPar.from;
     transAct.to = aksansadmin;
     transAct.quantity = askItemPar.quantity;
@@ -103,12 +108,13 @@ void ocaskans::store_answer(const answer &a){
     }
 
     eosio_assert(to->releasedLable==lable_not_release, CANNOT_RELEASE_ASK_REPEAT);
-    eosio_assert(to->optionanswerscnt>=a.choosedanswer, ILLEGAL_ANSWER);
+    eosio_assert((to->optionanswerscnt>=a.choosedanswer)&&(a.choosedanswer>0), ILLEGAL_ANSWER);
 
-    oct::transferfromact transAct;
+
+    transferfromact transAct;
     transAct.from = a.from;
     transAct.to = aksansadmin;
-    transAct.quantity.symbol = to->quantity.symbol;
+    transAct.quantity = to->quantity;
     transAct.quantity.amount = answerRequestOCT;
     send_deferred_transferfrom_transaction(transAct);
 
@@ -163,26 +169,19 @@ void ocaskans::releaseMortgage( const releasemog& rm ) {
                       auto ansItem = answerItem->answerlist.begin();
                       while(ansItem != answerItem->answerlist.end()){
 
-                          oct::transfer trs;
+                          transfer trs;
                           trs.from = aksansadmin;
                           trs.to = ansItem->from;
                           trs.memo = std::string("");
                           trs.quantity = askItem->quantity;
-                          trs.quantity.amount = avg;
+                          trs.quantity.amount = avg+answerRequestOCT;
                           send_deferred_transfer_transaction(trs);
                           ++ansItem;
                       }
                   }
               }
           }else{
-              oct::transfer trs;
-              trs.from = aksansadmin;
-              trs.to = askItem->from;
-              trs.memo = std::string("");
-              trs.quantity = askItem->quantity;
-              trs.quantity.amount = askItem->quantity.amount;
-              send_deferred_transfer_transaction(trs);
-
+               eosio_assert(false, LOGIC_ERROR);
           }
 
           askContainer.modify(askItem, 0, [&]( auto& s ) {
