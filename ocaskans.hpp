@@ -123,7 +123,7 @@ public:
     void releaseMortgage( const releasemog& rm );
     void store_answer(const answer &a);
     void store_ask(const actask &c);
-    void send_deferred_transfer_transaction(transfer as);
+    void send_deferred_transfer_transaction(std::vector<transfer> as);
 
     static const uint64_t aksansadmin = N(ocaskans);
     static const uint64_t tokenContract = N(eosdactoken);

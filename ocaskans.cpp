@@ -19,7 +19,12 @@
  */
 
 void ocaskans::send_deferred_transferfrom_transaction(transferfromact tf){
-    eosio::print("transferfromact:", tf.from, "--", tf.to, "--", tf.quantity);
+    eosio::print(">>>ocaskans transferfromact from:", tf.from);
+    eosio::print(">>>ocaskans transferfromact to:", tf.to);
+    eosio::print(">>>ocaskans transferfromact quantity:", tf.quantity);
+    eosio::print(">>>ocaskans transferfromact:", "<<<");
+
+
     eosio::asset fromBalance = eosdactoken(tokenContract).get_balance(tf.from, tf.quantity.symbol.name());
     eosio_assert(fromBalance.amount >= tf.quantity.amount,NOT_ENOUGH_OCT_TO_DO_IT);
 
@@ -33,23 +38,45 @@ void ocaskans::send_deferred_transferfrom_transaction(transferfromact tf){
     test_action_action<tokenContract, N(transferfrom)> transferfromcurrency;
     copy_data((char*)&tf, sizeof(tf), transferfromcurrency.data);
     trx.actions.emplace_back(vector<permission_level>{{currentAdmin, N(active)}},transferfromcurrency);
-    trx.delay_sec = 2;
-    trx.send( 0xffffffffffffffff, currentAdmin);
+    trx.delay_sec = 0;
+
+    uint64_t trxId = current_time();
+    trxId += tf.from;
+    trxId += tf.to;
+    trxId += tf.quantity.symbol.name();
+    trxId += tf.quantity.amount;
+
+    trx.send( trxId, currentAdmin);
 }
 
-void ocaskans::send_deferred_transfer_transaction(transfer tf) {
-    eosio::print("transfer:", tf.from, tf.to, tf.quantity);
-    eosio::asset fromBalance = eosdactoken(tokenContract).get_balance(tf.from, tf.quantity.symbol.name());
-    eosio_assert(fromBalance.amount >= tf.quantity.amount,NOT_ENOUGH_OCT_TO_DO_IT);
+void ocaskans::send_deferred_transfer_transaction(std::vector<transfer> vectf) {
 
-   using namespace eosio;
-   auto trx = eosio::transaction();
+    using namespace eosio;
+    auto trx = eosio::transaction();
 
-   test_action_action<tokenContract, N(transfer)> transfercurrency;
-   copy_data((char*)&tf, sizeof(tf), transfercurrency.data);
-   trx.actions.emplace_back(vector<permission_level>{{currentAdmin, N(active)}},transfercurrency);
-   trx.delay_sec = 2;
-   trx.send( 0xffffffffffffffff, currentAdmin );
+    uint64_t trxId = current_time();
+    for(std::vector<transfer>::iterator tf = vectf.begin(); tf!= vectf.end(); tf++){
+        eosio::print(">>>ocaskans transfer from:", tf->from);
+        eosio::print("ocaskans transfer to:", tf->to);
+        eosio::print("ocaskans transfer memo:", tf->memo.c_str());
+        eosio::print("ocaskans transfer quantity:", tf->quantity, "<<<");
+
+        eosio::asset fromBalance = eosdactoken(tokenContract).get_balance(tf->from, tf->quantity.symbol.name());
+        eosio_assert(fromBalance.amount >= tf->quantity.amount,NOT_ENOUGH_OCT_TO_DO_IT);
+
+        transfer onetf = *tf;
+        test_action_action<tokenContract, N(transfer)> transfercurrency;
+        copy_data((char*)&onetf, sizeof(onetf), transfercurrency.data);
+        trx.actions.emplace_back(vector<permission_level>{{currentAdmin, N(active)}},transfercurrency);
+
+        trxId+=tf->from;
+        trxId+=tf->to;
+        trxId+=tf->quantity.symbol.name();
+        trxId+=tf->quantity.amount;
+    }
+   trx.delay_sec = 0;
+
+   trx.send( trxId, currentAdmin );
 }
 
 /*
@@ -167,6 +194,7 @@ void ocaskans::releaseMortgage( const releasemog& rm ) {
                   auto answerItem = answerContainer.find(rm.askid);
                   if(answerItem != answerContainer.end()){
                       auto ansItem = answerItem->answerlist.begin();
+                      std::vector<transfer> vectrs;
                       while(ansItem != answerItem->answerlist.end()){
 
                           transfer trs;
@@ -175,9 +203,10 @@ void ocaskans::releaseMortgage( const releasemog& rm ) {
                           trs.memo = std::string("");
                           trs.quantity = askItem->quantity;
                           trs.quantity.amount = avg+answerRequestOCT;
-                          send_deferred_transfer_transaction(trs);
+                          vectrs.push_back(trs);
                           ++ansItem;
                       }
+                      send_deferred_transfer_transaction(vectrs);
                   }
               }
           }else{
