@@ -6,7 +6,7 @@
 #include <eosiolib/db.h>
 #include <eosiolib/types.hpp>
 #include <eosiolib/transaction.hpp>
-#include "../erc20currency/eosdactoken.hpp"
+#include "../EOSDACToken/eosdactoken.hpp"
 
 
 #include "tool.hpp"
