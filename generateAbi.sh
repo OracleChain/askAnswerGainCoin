@@ -1,1 +1,1 @@
-eosiocpp -g eosdactoken.abi ocaskans.hpp
+eosiocpp -g ocaskans.abi ocaskans.hpp

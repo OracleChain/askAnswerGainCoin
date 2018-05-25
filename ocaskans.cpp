@@ -19,7 +19,7 @@
  */
 
 void ocaskans::send_deferred_transferfrom_transaction(transferfromact tf){
-    eosio::print(">>>ocaskans transferfromact from:", tf.from);
+    eosio::print(" >>>ocaskans transferfromact from:", tf.from);
     eosio::print(">>>ocaskans transferfromact to:", tf.to);
     eosio::print(">>>ocaskans transferfromact quantity:", tf.quantity);
     eosio::print(">>>ocaskans transferfromact:", "<<<");
