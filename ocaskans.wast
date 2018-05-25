@@ -501,7 +501,7 @@
   )
   (i64.store offset=16
    (get_local $15)
-   (i64.const 6138568071520101888)
+   (i64.const -6758977618709577728)
   )
   (i64.store offset=32
    (get_local $15)
@@ -618,7 +618,7 @@
   )
   (i64.store offset=16
    (get_local $15)
-   (i64.const 6138568071520101888)
+   (i64.const -6758977618709577728)
   )
   (call $eosio_assert
    (i64.ge_u
@@ -1042,7 +1042,7 @@
       )
      )
      (drop
-      (call $_ZN5eosio6actionC2I18test_action_actionILy6138568071520101888ELy14829575313437878560EEEEONSt3__16vectorINS_16permission_levelENS4_9allocatorIS6_EEEERKT_
+      (call $_ZN5eosio6actionC2I18test_action_actionILy11687766454999973888ELy14829575313437878560EEEEONSt3__16vectorINS_16permission_levelENS4_9allocatorIS6_EEEERKT_
        (get_local $9)
        (i32.add
         (get_local $15)
@@ -1069,7 +1069,7 @@
      )
      (br $label$15)
     )
-    (call $_ZNSt3__16vectorIN5eosio6actionENS_9allocatorIS2_EEE24__emplace_back_slow_pathIJNS0_INS1_16permission_levelENS3_IS7_EEEER18test_action_actionILy6138568071520101888ELy14829575313437878560EEEEEvDpOT_
+    (call $_ZNSt3__16vectorIN5eosio6actionENS_9allocatorIS2_EEE24__emplace_back_slow_pathIJNS0_INS1_16permission_levelENS3_IS7_EEEER18test_action_actionILy11687766454999973888ELy14829575313437878560EEEEEvDpOT_
      (i32.add
       (get_local $15)
       (i32.const 52)
@@ -1879,7 +1879,7 @@
   )
   (get_local $9)
  )
- (func $_ZN5eosio6actionC2I18test_action_actionILy6138568071520101888ELy14829575313437878560EEEEONSt3__16vectorINS_16permission_levelENS4_9allocatorIS6_EEEERKT_ (param $0 i32) (param $1 i32) (param $2 i32) (result i32)
+ (func $_ZN5eosio6actionC2I18test_action_actionILy11687766454999973888ELy14829575313437878560EEEEONSt3__16vectorINS_16permission_levelENS4_9allocatorIS6_EEEERKT_ (param $0 i32) (param $1 i32) (param $2 i32) (result i32)
   (local $3 i32)
   (local $4 i32)
   (local $5 i32)
@@ -1918,7 +1918,7 @@
   )
   (i64.store
    (get_local $0)
-   (i64.const 6138568071520101888)
+   (i64.const -6758977618709577728)
   )
   (i64.store offset=8
    (get_local $0)
@@ -2137,7 +2137,7 @@
   )
   (get_local $0)
  )
- (func $_ZNSt3__16vectorIN5eosio6actionENS_9allocatorIS2_EEE24__emplace_back_slow_pathIJNS0_INS1_16permission_levelENS3_IS7_EEEER18test_action_actionILy6138568071520101888ELy14829575313437878560EEEEEvDpOT_ (param $0 i32) (param $1 i32) (param $2 i32)
+ (func $_ZNSt3__16vectorIN5eosio6actionENS_9allocatorIS2_EEE24__emplace_back_slow_pathIJNS0_INS1_16permission_levelENS3_IS7_EEEER18test_action_actionILy11687766454999973888ELy14829575313437878560EEEEEvDpOT_ (param $0 i32) (param $1 i32) (param $2 i32)
   (local $3 i32)
   (local $4 i32)
   (local $5 i32)
@@ -2248,7 +2248,7 @@
   (set_local $4
    (i32.add
     (tee_local $8
-     (call $_ZN5eosio6actionC2I18test_action_actionILy6138568071520101888ELy14829575313437878560EEEEONSt3__16vectorINS_16permission_levelENS4_9allocatorIS6_EEEERKT_
+     (call $_ZN5eosio6actionC2I18test_action_actionILy11687766454999973888ELy14829575313437878560EEEEONSt3__16vectorINS_16permission_levelENS4_9allocatorIS6_EEEERKT_
       (tee_local $9
        (i32.add
         (get_local $8)
@@ -7754,7 +7754,7 @@
     )
     (i64.store offset=48
      (get_local $20)
-     (i64.const 6138568071520101888)
+     (i64.const -6758977618709577728)
     )
     (set_local $17
      (i64.load
@@ -8235,7 +8235,7 @@
         )
        )
        (drop
-        (call $_ZN5eosio6actionC2I18test_action_actionILy6138568071520101888ELy14829575313431724032EEEEONSt3__16vectorINS_16permission_levelENS4_9allocatorIS6_EEEERKT_
+        (call $_ZN5eosio6actionC2I18test_action_actionILy11687766454999973888ELy14829575313431724032EEEEONSt3__16vectorINS_16permission_levelENS4_9allocatorIS6_EEEERKT_
          (get_local $15)
          (i32.add
           (get_local $20)
@@ -8265,7 +8265,7 @@
        )
        (br $label$19)
       )
-      (call $_ZNSt3__16vectorIN5eosio6actionENS_9allocatorIS2_EEE24__emplace_back_slow_pathIJNS0_INS1_16permission_levelENS3_IS7_EEEER18test_action_actionILy6138568071520101888ELy14829575313431724032EEEEEvDpOT_
+      (call $_ZNSt3__16vectorIN5eosio6actionENS_9allocatorIS2_EEE24__emplace_back_slow_pathIJNS0_INS1_16permission_levelENS3_IS7_EEEER18test_action_actionILy11687766454999973888ELy14829575313431724032EEEEEvDpOT_
        (get_local $3)
        (i32.add
         (get_local $20)
@@ -8470,7 +8470,7 @@
    )
   )
  )
- (func $_ZN5eosio6actionC2I18test_action_actionILy6138568071520101888ELy14829575313431724032EEEEONSt3__16vectorINS_16permission_levelENS4_9allocatorIS6_EEEERKT_ (param $0 i32) (param $1 i32) (param $2 i32) (result i32)
+ (func $_ZN5eosio6actionC2I18test_action_actionILy11687766454999973888ELy14829575313431724032EEEEONSt3__16vectorINS_16permission_levelENS4_9allocatorIS6_EEEERKT_ (param $0 i32) (param $1 i32) (param $2 i32) (result i32)
   (local $3 i32)
   (local $4 i32)
   (local $5 i32)
@@ -8509,7 +8509,7 @@
   )
   (i64.store
    (get_local $0)
-   (i64.const 6138568071520101888)
+   (i64.const -6758977618709577728)
   )
   (i64.store offset=8
    (get_local $0)
@@ -8728,7 +8728,7 @@
   )
   (get_local $0)
  )
- (func $_ZNSt3__16vectorIN5eosio6actionENS_9allocatorIS2_EEE24__emplace_back_slow_pathIJNS0_INS1_16permission_levelENS3_IS7_EEEER18test_action_actionILy6138568071520101888ELy14829575313431724032EEEEEvDpOT_ (param $0 i32) (param $1 i32) (param $2 i32)
+ (func $_ZNSt3__16vectorIN5eosio6actionENS_9allocatorIS2_EEE24__emplace_back_slow_pathIJNS0_INS1_16permission_levelENS3_IS7_EEEER18test_action_actionILy11687766454999973888ELy14829575313431724032EEEEEvDpOT_ (param $0 i32) (param $1 i32) (param $2 i32)
   (local $3 i32)
   (local $4 i32)
   (local $5 i32)
@@ -8839,7 +8839,7 @@
   (set_local $4
    (i32.add
     (tee_local $8
-     (call $_ZN5eosio6actionC2I18test_action_actionILy6138568071520101888ELy14829575313431724032EEEEONSt3__16vectorINS_16permission_levelENS4_9allocatorIS6_EEEERKT_
+     (call $_ZN5eosio6actionC2I18test_action_actionILy11687766454999973888ELy14829575313431724032EEEEONSt3__16vectorINS_16permission_levelENS4_9allocatorIS6_EEEERKT_
       (tee_local $9
        (i32.add
         (get_local $8)

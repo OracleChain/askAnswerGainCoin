@@ -126,7 +126,7 @@ public:
     void send_deferred_transfer_transaction(std::vector<transfer> as);
 
     static const uint64_t aksansadmin = N(ocaskans);
-    static const uint64_t tokenContract = N(eosdactoken);
+    static const uint64_t tokenContract = N(octoneos);
     static const uint64_t currentAdmin = N(ocaskans);
     static const uint64_t answerRequestOCT = 10000;
 
