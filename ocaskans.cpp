@@ -17,13 +17,16 @@
  *  The init() and apply() methods must have C calling convention so that the blockchain can lookup and
  *  call these methods.
  */
+void ocaskans::transferInline(const transfer &trs)
+{
+    require_auth(trs.from);
+    INLINE_ACTION_SENDER(eosdactoken, transfer)(tokenContract, {trs.from,N(active)},
+    { trs.from, trs.to, trs.quantity, std::string("") } );
+}
 
-void ocaskans::send_deferred_transferfrom_transaction(transferfromact tf){
-    eosio::print(" >>>ocaskans transferfromact from:", tf.from);
-    eosio::print(">>>ocaskans transferfromact to:", tf.to);
-    eosio::print(">>>ocaskans transferfromact quantity:", tf.quantity);
-    eosio::print(">>>ocaskans transferfromact:", "<<<");
 
+void ocaskans::transferFromInline(const transferfromact &tf){
+    require_auth(tf.from);
 
     eosio::asset fromBalance = eosdactoken(tokenContract).get_balance(tf.from, tf.quantity.symbol.name());
     eosio_assert(fromBalance.amount >= tf.quantity.amount,NOT_ENOUGH_OCT_TO_DO_IT);
@@ -31,52 +34,8 @@ void ocaskans::send_deferred_transferfrom_transaction(transferfromact tf){
     uint64_t allowed = eosdactoken(tokenContract).allowanceOf(tf.from, tf.to, tf.quantity.symbol.name());
     eosio_assert(allowed>= tf.quantity.amount, NOT_ENOUGH_ALLOWED_OCT_TO_DO_IT);
 
-
-    using namespace eosio;
-    auto trx = eosio::transaction();
-
-    test_action_action<tokenContract, N(transferfrom)> transferfromcurrency;
-    copy_data((char*)&tf, sizeof(tf), transferfromcurrency.data);
-    trx.actions.emplace_back(vector<permission_level>{{currentAdmin, N(active)}},transferfromcurrency);
-    trx.delay_sec = 0;
-
-    uint64_t trxId = current_time();
-    trxId += tf.from;
-    trxId += tf.to;
-    trxId += tf.quantity.symbol.name();
-    trxId += tf.quantity.amount;
-
-    trx.send( trxId, currentAdmin);
-}
-
-void ocaskans::send_deferred_transfer_transaction(std::vector<transfer> vectf) {
-
-    using namespace eosio;
-    auto trx = eosio::transaction();
-
-    uint64_t trxId = current_time();
-    for(std::vector<transfer>::iterator tf = vectf.begin(); tf!= vectf.end(); tf++){
-        eosio::print(">>>ocaskans transfer from:", tf->from);
-        eosio::print("ocaskans transfer to:", tf->to);
-        eosio::print("ocaskans transfer memo:", tf->memo.c_str());
-        eosio::print("ocaskans transfer quantity:", tf->quantity, "<<<");
-
-        eosio::asset fromBalance = eosdactoken(tokenContract).get_balance(tf->from, tf->quantity.symbol.name());
-        eosio_assert(fromBalance.amount >= tf->quantity.amount,NOT_ENOUGH_OCT_TO_DO_IT);
-
-        transfer onetf = *tf;
-        test_action_action<tokenContract, N(transfer)> transfercurrency;
-        copy_data((char*)&onetf, sizeof(onetf), transfercurrency.data);
-        trx.actions.emplace_back(vector<permission_level>{{currentAdmin, N(active)}},transfercurrency);
-
-        trxId+=tf->from;
-        trxId+=tf->to;
-        trxId+=tf->quantity.symbol.name();
-        trxId+=tf->quantity.amount;
-    }
-   trx.delay_sec = 0;
-
-   trx.send( trxId, currentAdmin );
+    INLINE_ACTION_SENDER(eosdactoken, transferfrom)(tokenContract, {currentAdmin, N(active)},
+    { tf.from, tf.to, tf.quantity} );
 }
 
 /*
@@ -85,7 +44,7 @@ you can modify you self asks, or else will add a new ask
 void ocaskans::store_ask(const actask &askItemPar){
     actask c = askItemPar;
     require_auth(c.from);
-    eosio_assert(c.optionanswerscnt>2 && c.optionanswerscnt<10000, OPTIONS_ANSWERS_COUNT_SHOULE_BIGGER_THAN_ONE);
+    eosio_assert(c.optionanswerscnt>=2 && c.optionanswerscnt<10000, OPTIONS_ANSWERS_COUNT_SHOULE_BIGGER_THAN_ONE);
 
     askIndex askItem(currentAdmin, aksansadmin);
     auto to = askItem.find( c.id );
@@ -94,7 +53,7 @@ void ocaskans::store_ask(const actask &askItemPar){
     transAct.from = askItemPar.from;
     transAct.to = aksansadmin;
     transAct.quantity = askItemPar.quantity;
-    send_deferred_transferfrom_transaction(transAct);
+    transferFromInline(transAct);
 
 
     uint64_t idincrease = c.id;
@@ -143,7 +102,7 @@ void ocaskans::store_answer(const answer &a){
     transAct.to = aksansadmin;
     transAct.quantity = to->quantity;
     transAct.quantity.amount = answerRequestOCT;
-    send_deferred_transferfrom_transaction(transAct);
+    transferFromInline(transAct);
 
 
     AnswerIndex ai(currentAdmin, aksansadmin);
@@ -173,6 +132,7 @@ void ocaskans::store_answer(const answer &a){
     }
 }
 
+
 void ocaskans::releaseMortgage( const releasemog& rm ) {
     require_auth(aksansadmin);
 
@@ -196,17 +156,15 @@ void ocaskans::releaseMortgage( const releasemog& rm ) {
                       auto ansItem = answerItem->answerlist.begin();
                       std::vector<transfer> vectrs;
                       while(ansItem != answerItem->answerlist.end()){
-
                           transfer trs;
                           trs.from = aksansadmin;
                           trs.to = ansItem->from;
                           trs.memo = std::string("");
                           trs.quantity = askItem->quantity;
                           trs.quantity.amount = avg+answerRequestOCT;
-                          vectrs.push_back(trs);
                           ++ansItem;
+                          transferInline(trs);
                       }
-                      send_deferred_transfer_transaction(vectrs);
                   }
               }
           }else{
@@ -232,6 +190,12 @@ void ocaskans::removeAsk(const rmask & ra){
     auto  askItem = askContainer.find(ra.askid);
     if(askItem != askContainer.end()){
         askContainer.erase(askItem);
+    }
+
+    AnswerIndex ai(currentAdmin, aksansadmin);
+    auto ansIte = ai.find(ra.askid);
+    if(ansIte != ai.end()){
+        ai.erase(ansIte);
     }
 }
 
