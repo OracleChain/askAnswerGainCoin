@@ -16236,6 +16236,12 @@
    )
   )
   (block $label$0
+   (br_if $label$0
+    (i64.ne
+     (get_local $1)
+     (get_local $0)
+    )
+   )
    (block $label$1
     (block $label$2
      (block $label$3

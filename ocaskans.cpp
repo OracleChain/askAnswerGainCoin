@@ -221,28 +221,29 @@ extern "C" {
 using namespace eosio;
 
 void apply( uint64_t receiver, uint64_t code, uint64_t action ) {
-
-    switch(action)
-    {
-        case N(ask):
+    if( code == receiver){
+        switch(action)
         {
-            ocaskans().store_ask( unpack_action_data<actask>() );
-            break;
-        }
-        case N(answer):
-        {
-            ocaskans().store_answer( unpack_action_data<answer>() );
-            break;
-        }
-        case N(releasemog):
-        {
-            ocaskans().releaseMortgage( unpack_action_data<releasemog>() );
-            break;
-        }
-        case N(rmask):
-        {
-            ocaskans().removeAsk( unpack_action_data<rmask>() );
-            break;
+            case N(ask):
+            {
+                ocaskans().store_ask( unpack_action_data<actask>() );
+                break;
+            }
+            case N(answer):
+            {
+                ocaskans().store_answer( unpack_action_data<answer>() );
+                break;
+            }
+            case N(releasemog):
+            {
+                ocaskans().releaseMortgage( unpack_action_data<releasemog>() );
+                break;
+            }
+            case N(rmask):
+            {
+                ocaskans().removeAsk( unpack_action_data<rmask>() );
+                break;
+            }
         }
     }
   }
