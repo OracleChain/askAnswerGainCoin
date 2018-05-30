@@ -17,6 +17,27 @@
  *  The init() and apply() methods must have C calling convention so that the blockchain can lookup and
  *  call these methods.
  */
+
+void ocaskans::configinfo(const config &cp){
+    require_auth(aksansadmin);
+
+    Config c(_self, aksansadmin);
+    auto ite = c.find(aksansadmin);
+    if(ite == c.end()){
+        c.emplace(aksansadmin, [&](auto &s){
+           s.admin = cp.admin;
+           s.ansreqoct = cp.ansreqoct;
+        });
+    }else{
+        c.modify(*ite, aksansadmin, [&](auto &s){
+            s.admin = cp.admin;
+            s.ansreqoct = cp.ansreqoct;
+        });
+    }
+
+    this->ansreqoct = cp.ansreqoct;
+}
+
 void ocaskans::transferInline(const transfer &trs)
 {
     require_auth(trs.from);
@@ -97,12 +118,15 @@ void ocaskans::store_answer(const answer &a){
     eosio_assert((to->optionanswerscnt>=a.choosedanswer)&&(a.choosedanswer>0), ILLEGAL_ANSWER);
 
 
-    transferfromact transAct;
-    transAct.from = a.from;
-    transAct.to = aksansadmin;
-    transAct.quantity = to->quantity;
-    transAct.quantity.amount = answerRequestOCT;
-    transferFromInline(transAct);
+    if(ansreqoct>0){
+        transferfromact transAct;
+        transAct.from = a.from;
+        transAct.to = aksansadmin;
+        transAct.quantity = to->quantity;
+        transAct.quantity.amount = ansreqoct;
+        transferFromInline(transAct);
+    }
+
 
 
     AnswerIndex ai(currentAdmin, aksansadmin);
@@ -161,7 +185,7 @@ void ocaskans::releaseMortgage( const releasemog& rm ) {
                           trs.to = ansItem->from;
                           trs.memo = std::string("");
                           trs.quantity = askItem->quantity;
-                          trs.quantity.amount = avg+answerRequestOCT;
+                          trs.quantity.amount = avg+ansreqoct;
                           ++ansItem;
                           transferInline(trs);
                       }
@@ -226,22 +250,26 @@ void apply( uint64_t receiver, uint64_t code, uint64_t action ) {
         {
             case N(ask):
             {
-                ocaskans().store_ask( unpack_action_data<actask>() );
+                ocaskans(receiver).store_ask( unpack_action_data<actask>() );
                 break;
             }
             case N(answer):
             {
-                ocaskans().store_answer( unpack_action_data<answer>() );
+                ocaskans(receiver).store_answer( unpack_action_data<answer>() );
                 break;
             }
             case N(releasemog):
             {
-                ocaskans().releaseMortgage( unpack_action_data<releasemog>() );
+                ocaskans(receiver).releaseMortgage( unpack_action_data<releasemog>() );
                 break;
             }
             case N(rmask):
             {
-                ocaskans().removeAsk( unpack_action_data<rmask>() );
+                ocaskans(receiver).removeAsk( unpack_action_data<rmask>() );
+                break;
+            }
+            case N(config):{
+                ocaskans(receiver).configinfo( unpack_action_data<config>() );
                 break;
             }
         }

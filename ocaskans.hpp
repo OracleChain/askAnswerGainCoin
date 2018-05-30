@@ -104,6 +104,17 @@ struct releasemog{
 
 
 /*
+@abi action
+*/
+struct config{
+    account_name admin;
+    uint64_t ansreqoct;
+    account_name primary_key()const { return admin; }
+    EOSLIB_SERIALIZE(config, (admin)(ansreqoct))
+};
+typedef eosio::multi_index<N(config), config> Config;
+
+/*
     @abi action
 */
 struct rmask{
@@ -115,9 +126,18 @@ typedef eosio::multi_index<N(ask), ask> askIndex;
 
 typedef eosio::multi_index<N(answers), answers> AnswerIndex;
 
-class ocaskans{
+class ocaskans:public eosio::contract{
 
 public:
+    ocaskans(account_name self):contract(self){
+        ansreqoct = 10000;
+        Config c(self, aksansadmin);
+        auto ite = c.find(aksansadmin);
+        if(ite != c.end()){
+            ansreqoct = ite->ansreqoct;
+        }
+    }
+
     uint32_t getAnswerCount(uint64_t askid);
     void removeAsk(const rmask & ra);
     void releaseMortgage( const releasemog& rm );
@@ -126,10 +146,12 @@ public:
     void transferInline(const transfer &trs);
     void transferFromInline(const transferfromact &tf);
 
+    void configinfo(const config &ansreqoct);
+
     static const uint64_t aksansadmin = N(ocaskans);
     static const uint64_t tokenContract = N(octoneos);
     static const uint64_t currentAdmin = N(ocaskans);
-    static const uint64_t answerRequestOCT = 10000;
+    int64_t ansreqoct;
 
 private:
     void send_deferred_transferfrom_transaction(transferfromact tf);
