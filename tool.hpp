@@ -31,6 +31,14 @@ struct requestLable{
     uint64_t id;
 };
 
+static constexpr int64_t max_amount    = (1LL << 62) - 1;
+
+void checkoutAmount(const int64_t & amount){
+    eosio_assert( -max_amount <= amount, "subtraction underflow" );
+    eosio_assert( amount <= max_amount,  "subtraction overflow" );
+}
+
+
 #define SUCCESS_CODE 0
 #define PARAMETER_ERROR "6000001 PARAMETER_ERROR" //参数错误
 #define BLANCE_NOT_ENOUGH "6000002 BLANCE_NOT_ENOUGH" //余额不足
@@ -68,3 +76,5 @@ struct requestLable{
 
 #define TOKEN_WITH_SYMBOL_DOES_NOT_EXIST_CREATE_TOKEN_BEFORE_ISSUE "6000035 TOKEN_WITH_SYMBOL_DOES_NOT_EXIST_CREATE_TOKEN_BEFORE_ISSUE"
 #define ONLY_ORACLECHAIN_TOKEN_OCT_SUPPORTED "6000036 ONLY_ORACLECHAIN_TOKEN_OCT_SUPPORTED"
+#define MEMO_HAS_MORE_THAN_256_BYTES "6000037 MEMO_HAS_MORE_THAN_256_BYTES"
+#define NO_BALANCE_OBJECT_FOUND_FOR_THIS_ACCOUNT "6000038 NO_BALANCE_OBJECT_FOUND_FOR_THIS_ACCOUNT"
