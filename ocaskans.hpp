@@ -105,14 +105,15 @@ struct releasemog{
 
 /*
 @abi action
+@abi table configa
 */
 struct config{
     account_name admin;
-    uint64_t ansreqoct;
+    eosio::asset ansreqoct;
     account_name primary_key()const { return admin; }
     EOSLIB_SERIALIZE(config, (admin)(ansreqoct))
 };
-typedef eosio::multi_index<N(config), config> Config;
+typedef eosio::multi_index<N(configa), config> Config;
 
 /*
     @abi action
@@ -130,7 +131,11 @@ class ocaskans:public eosio::contract{
 
 public:
     ocaskans(account_name self):contract(self){
-        ansreqoct = 10000;
+        ansreqoct.amount = 10000;
+
+        eosio::symbol_name sn = eosio::string_to_symbol(4, globalsymbolname.c_str());
+        ansreqoct.symbol = eosio::symbol_type(sn);
+
         Config c(self, aksansadmin);
         auto ite = c.find(aksansadmin);
         if(ite != c.end()){
@@ -151,9 +156,10 @@ public:
     static const uint64_t aksansadmin = N(ocaskans);
     static const uint64_t tokenContract = N(octoneos);
     static const uint64_t currentAdmin = N(ocaskans);
-    int64_t ansreqoct;
+    eosio::asset ansreqoct;
 
 private:
+    std::string globalsymbolname = "OCT";
     void send_deferred_transferfrom_transaction(transferfromact tf);
 };
 

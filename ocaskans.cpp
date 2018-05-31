@@ -21,6 +21,8 @@
 void ocaskans::configinfo(const config &cp){
     require_auth(aksansadmin);
 
+    eosio_assert(cp.ansreqoct.symbol == ansreqoct.symbol, ONLY_ORACLECHAIN_TOKEN_OCT_SUPPORTED);
+
     Config c(_self, aksansadmin);
     auto ite = c.find(aksansadmin);
     if(ite == c.end()){
@@ -65,6 +67,7 @@ you can modify you self asks, or else will add a new ask
 void ocaskans::store_ask(const actask &askItemPar){
     actask c = askItemPar;
     require_auth(c.from);
+    eosio_assert(askItemPar.quantity.symbol == ansreqoct.symbol, ONLY_ORACLECHAIN_TOKEN_OCT_SUPPORTED);
     eosio_assert(c.optionanswerscnt>=2 && c.optionanswerscnt<10000, OPTIONS_ANSWERS_COUNT_SHOULE_BIGGER_THAN_ONE);
 
     askIndex askItem(currentAdmin, aksansadmin);
@@ -101,7 +104,7 @@ void ocaskans::store_ask(const actask &askItemPar){
         s.optionanswers = c.optionanswers;
      });
 
-     eosio::print("answersid:", c.id);
+     eosio::print("Answersid:", c.id);
 }
 
 void ocaskans::store_answer(const answer &a){
@@ -118,12 +121,11 @@ void ocaskans::store_answer(const answer &a){
     eosio_assert((to->optionanswerscnt>=a.choosedanswer)&&(a.choosedanswer>0), ILLEGAL_ANSWER);
 
 
-    if(ansreqoct>0){
+    if(ansreqoct.amount>0){
         transferfromact transAct;
         transAct.from = a.from;
         transAct.to = aksansadmin;
-        transAct.quantity = to->quantity;
-        transAct.quantity.amount = ansreqoct;
+        transAct.quantity = ansreqoct;
         transferFromInline(transAct);
     }
 
@@ -185,7 +187,7 @@ void ocaskans::releaseMortgage( const releasemog& rm ) {
                           trs.to = ansItem->from;
                           trs.memo = std::string("");
                           trs.quantity = askItem->quantity;
-                          trs.quantity.amount = avg+ansreqoct;
+                          trs.quantity.amount = avg+ansreqoct.amount;
                           ++ansItem;
                           transferInline(trs);
                       }
@@ -235,7 +237,6 @@ uint32_t ocaskans::getAnswerCount(uint64_t askid){
         ++count;
         ++ansItem;
     }
-    eosio::print("count:", count);
     return count;
 }
 
