@@ -70,8 +70,7 @@ void ocaskans::store_ask(const actask &askItemPar){
     eosio_assert(askItemPar.quantity.symbol == ansreqoct.symbol, ONLY_ORACLECHAIN_TOKEN_OCT_SUPPORTED);
     eosio_assert(c.optionanswerscnt>=2 && c.optionanswerscnt<10000, OPTIONS_ANSWERS_COUNT_SHOULE_BIGGER_THAN_ONE);
 
-    askIndex askItem(currentAdmin, aksansadmin);
-    auto to = askItem.find( c.id );
+
 
     transferfromact transAct;
     transAct.from = askItemPar.from;
@@ -79,8 +78,16 @@ void ocaskans::store_ask(const actask &askItemPar){
     transAct.quantity = askItemPar.quantity;
     transferFromInline(transAct);
 
+    askIndex askItem(currentAdmin, aksansadmin);
+    auto to = askItem.find( c.id );
 
-    uint64_t idincrease = c.id;
+    ConfigAskId cai(currentAdmin, aksansadmin);
+    auto askIndexIdItem = cai.find(INDEX_ASKID);
+    if(askIndexIdItem!=cai.end()){
+        latestaskid = askIndexIdItem->value;
+    }
+    uint64_t idincrease = latestaskid;
+
     if(to != askItem.end())
     {
         to = askItem.find(idincrease);
@@ -92,10 +99,11 @@ void ocaskans::store_ask(const actask &askItemPar){
     }
     c.id = idincrease;
 
+
     askItem.emplace(c.from, [&]( auto& s ) {
         s.id = c.id;
         s.createtime = now();
-        s.endtime    = c.createtime+c.endtime;;
+        s.endtime    = s.createtime+c.endtime;;
         s.from        = c.from;
         s.quantity = c.quantity;
         s.releasedLable = lable_not_release;
@@ -103,6 +111,20 @@ void ocaskans::store_ask(const actask &askItemPar){
         s.asktitle = c.asktitle;
         s.optionanswers = c.optionanswers;
      });
+
+
+    latestaskid+=1;
+    if(askIndexIdItem == cai.end()){
+        cai.emplace(c.from, [&](auto &s){
+             s.key = INDEX_ASKID;
+             s.value = latestaskid;
+        });
+    }else{
+        cai.modify(askIndexIdItem, c.from, [&](auto &s){
+             s.key = INDEX_ASKID;
+             s.value = latestaskid;
+        });
+    }
 
      eosio::print("Answersid:", c.id);
 }
@@ -175,7 +197,7 @@ void ocaskans::releaseMortgage( const releasemog& rm ) {
           if(nTotalCntAnswer>0)
           {
               uint64_t avg = askItem->quantity.amount/nTotalCntAnswer;
-              if(avg>0){
+              if(avg>0 || ansreqoct.amount>0){
                   AnswerIndex answerContainer(currentAdmin, aksansadmin);
                   auto answerItem = answerContainer.find(rm.askid);
                   if(answerItem != answerContainer.end()){

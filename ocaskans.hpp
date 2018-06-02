@@ -115,6 +115,20 @@ struct config{
 };
 typedef eosio::multi_index<N(configa), config> Config;
 
+
+
+/*
+@abi action
+@abi table configaskid
+*/
+struct configaskid{
+    uint64_t key;
+    uint64_t value;
+    uint64_t primary_key()const { return key; }
+    EOSLIB_SERIALIZE(configaskid, (key)(value))
+};
+typedef eosio::multi_index<N(configaskid), configaskid> ConfigAskId;
+#define INDEX_ASKID 0
 /*
     @abi action
 */
@@ -131,7 +145,7 @@ class ocaskans:public eosio::contract{
 
 public:
     ocaskans(account_name self):contract(self){
-        ansreqoct.amount = 10000;
+        ansreqoct.amount = 0;
 
         eosio::symbol_name sn = eosio::string_to_symbol(4, globalsymbolname.c_str());
         ansreqoct.symbol = eosio::symbol_type(sn);
@@ -141,6 +155,14 @@ public:
         if(ite != c.end()){
             ansreqoct = ite->ansreqoct;
         }
+
+        ConfigAskId cai(currentAdmin, aksansadmin);
+        latestaskid = 1000;
+        auto askIndexIdItem = cai.find(INDEX_ASKID);
+        if(askIndexIdItem!=cai.end()){
+            latestaskid = askIndexIdItem->value;
+        }
+
     }
 
     uint32_t getAnswerCount(uint64_t askid);
@@ -157,6 +179,7 @@ public:
     static const uint64_t tokenContract = N(octoneos);
     static const uint64_t currentAdmin = N(ocaskans);
     eosio::asset ansreqoct;
+    uint64_t latestaskid;
 
 private:
     std::string globalsymbolname = "OCT";
